@@ -1,6 +1,7 @@
 #!/bin/bash
 scriptDir=$(dirname $0 | xargs -i readlink -f {})
-container_name="mobile_robot_fleet"
+image_name="mobile_robot_fleet"
+container_name=$image_name
 version="0.1"
 
 function print_banner() {
@@ -11,7 +12,7 @@ function print_banner() {
 
       $ docker exec -it $container_name /bin/bash
 
-    To build the workspace type:
+    To build the workspace inside container type:
 
       $ catkin build
       "
@@ -26,9 +27,9 @@ for option in "$@"; do
     esac
 done
 
-does_exist=$(docker image ls $container_name:$version | grep -ci1 $container_name)
+does_exist=$(docker image ls $image_name:$version | grep -ci1 $image_name)
 if [ $does_exist == "0" ] ; then
-	docker build -t $container_name:$version .
+	docker build -t $image_name:$version .
 fi
 
 print_banner
@@ -39,4 +40,4 @@ docker run \
     -v $HOME/.Xauthority:/root/.Xauthority \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
     -v "$scriptDir/src/:/home/developer/catkin_ws/src" \
-    -itd $container_name:$version /bin/bash
+    -itd $image_name:$version /bin/bash
