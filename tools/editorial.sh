@@ -24,8 +24,8 @@ function analyze() {
     readarray -t sources_c -d '' < <(git grep --cached -l '' | grep ".*\.\(c$\|h$\|cpp$\|hpp$\)")
     readarray -t sources_py -d '' < <(git grep --cached -l '' | grep ".*\.\(py$\)")
 
-    clang_format
     flake8_test
+    clang_format
 
     echo "======= \"$repo_root\" analysis:"
     echo "found $err_fmt file(s) with formatting errors "
