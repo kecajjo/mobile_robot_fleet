@@ -1,0 +1,4 @@
+[flake8]
+exclude = .git,__pycache__,cmake-build*,build,devel,logs
+max-complexity = 10
+max-line-length = 120

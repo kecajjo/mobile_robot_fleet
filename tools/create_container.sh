@@ -1,12 +1,13 @@
 #!/bin/bash
 scriptDir=$(dirname $0 | xargs -i readlink -f {})
+repo_root=$(readlink -f "$scriptDir/..")
 image_name="mobile_robot_fleet"
 container_name=$image_name
-version="0.1"
+version="0.2"
 
 function print_banner() {
     echo ">> Image version to be used: $version"
-    echo ">> Mounting host directory \"$scriptDir\" under \"/catkin_ws\" share.
+    echo ">> Mounting host directory \"$repo_root\" under \"/mobile_robot_fleet\" share.
 
     To enter the container type:
 
@@ -14,6 +15,7 @@ function print_banner() {
 
     To build the workspace inside container type:
 
+      $ cd catkin_ws/
       $ catkin build
       "
 }
@@ -29,7 +31,9 @@ done
 
 does_exist=$(docker image ls $image_name:$version | grep -ci1 $image_name)
 if [ $does_exist == "0" ] ; then
-	docker build -t $image_name:$version .
+	docker build \
+      -t $image_name:$version . \
+      -f "$repo_root/Dockerfile"
 fi
 
 print_banner
@@ -39,5 +43,5 @@ docker run \
     --env DISPLAY \
     -v $HOME/.Xauthority:/root/.Xauthority \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
-    -v "$scriptDir/src/:/home/developer/catkin_ws/src" \
+    -v "$repo_root/:/home/developer/mobile_robot_fleet" \
     -itd $image_name:$version /bin/bash
