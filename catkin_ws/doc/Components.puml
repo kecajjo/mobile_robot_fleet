@@ -13,6 +13,8 @@ node "Lines" {
     [LineManager] <-> [Line]
 }
 
+node "Fleet"
+
 Lines -> Warehouse : OrderParts
 
 Warehouse -> Controller : OrderRobotTransit
