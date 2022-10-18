@@ -12,6 +12,9 @@ USER root
         python3-catkin-tools \
         python3-osrf-pycommon && \
         rm -rf /var/lib/apt/lists/*
+    RUN apt-get update && apt-get install -y \
+        plantuml && \
+        rm -rf /var/lib/apt/lists/*
 
 USER developer
     RUN mkdir -p /home/developer/mobile_robot_fleet

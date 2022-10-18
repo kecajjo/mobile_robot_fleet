@@ -3,7 +3,7 @@ scriptDir=$(dirname $0 | xargs -i readlink -f {})
 repo_root=$(readlink -f "$scriptDir/..")
 image_name="mobile_robot_fleet"
 container_name=$image_name
-version="0.2"
+version="0.3"
 
 function print_banner() {
     echo ">> Image version to be used: $version"
