@@ -1,0 +1,54 @@
+@startuml
+
+class LineManager{
+    orderPart()
+    orderRandomPart()
+}
+
+class Warehouse{
+    availableParts : map<PartId, float>
+    
+    refillPart(PartId, float)
+    loadRobot(PartId, float)
+    askRobotTransit()
+    partOrderReceived()
+}
+
+class Controller{
+    factoryMap
+    availableRobots : map<uint, RobotState>
+    transitOrders : queue
+    TODO
+
+    loadRobot(pair<PartId, float>)
+    orderRobot()
+    updateRobotStateReceived()
+    registerRobotReceived()
+    transitOrderReceived()
+    TODO()
+}
+
+class MobileRobot{
+    id : uint
+    capacity : float
+    contains : pair<PartId, float>
+    state : RobotState
+    location
+
+    updateState()
+    getOrder()
+    moveTo()
+    leaveParts()
+    registerRobot()
+    unregisterRobot()
+}
+
+enum RobotState
+enum PartId
+
+MobileRobot *-- RobotState
+MobileRobot *-- PartId
+Warehouse *-- PartId
+Controller*-- RobotState
+
+@enduml

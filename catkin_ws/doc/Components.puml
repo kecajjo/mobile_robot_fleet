@@ -1,0 +1,24 @@
+@startuml
+
+component Warehouse
+component Controller
+component Fleet 
+note as MobileRobotsNote
+    Contains multiple mobile robots
+end note
+
+Fleet .. MobileRobotsNote
+
+node "Lines" {
+    [LineManager] <-> [Line]
+}
+
+Lines -> Warehouse : OrderParts
+
+Warehouse -> Controller : OrderRobotTransit
+Controller -> Fleet : GiveTaskToRobot
+Controller -> Warehouse : FillRobotWithPart
+Fleet -> Controller : UpdateRobotState
+Fleet -> Controller : RegisterRobot
+
+@enduml
