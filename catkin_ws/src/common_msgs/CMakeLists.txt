@@ -19,7 +19,7 @@ add_message_files(DIRECTORY
 add_service_files(DIRECTORY
                   srv
                   FILES
-                  SetValue.srv)
+                  CommandRobot.srv)
 
 generate_messages(DEPENDENCIES std_msgs)
 
