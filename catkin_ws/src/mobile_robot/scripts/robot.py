@@ -82,7 +82,7 @@ class Robot(object):
 
 if __name__ == '__main__':
     rospy.init_node('mobile_robot')
-    rospy.loginfo("Starting")
+    rospy.loginfo("Starting robot...")
 
     robot = Robot()
     rospy.loginfo("Robot_{} has started succesfuly!".format(robot._id))
