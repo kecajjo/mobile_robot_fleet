@@ -26,7 +26,7 @@ class Robot(object):
         self._location = location
         self._state = RobotState.MOVING
         self._publish_robot_status()
-        rospy.loginfo("Robot_{} is moving!".format(self._id))
+        rospy.loginfo("Robot_{} is moving to node {}!".format(self._id, location))
 
         rospy.Timer(rospy.Duration(WAIT_TIME_MOVE), self._timed_task_finished, oneshot=True)
 

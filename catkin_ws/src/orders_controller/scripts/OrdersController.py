@@ -1,6 +1,13 @@
 import rospy
 import queue
 from common_msgs.msg import Part, Order, RobotStatus, WarehouseLocation, RobotState
+from common_msgs.srv import CommandRobot
+
+_ORDER_TOPIC = "/orders"
+_MOVE_SERVICE = "robot/move_to"
+_LOAD_SERVICE = "/robot/get_parts"
+_UNLOAD_SERVICE = "/robot/drop_parts"
+_ROBOTS_STATE_TOPIC = "/robot/status"
 
 class RobotOrderType(object):
     MOVE_TO = 0
@@ -45,6 +52,10 @@ class OrdersController(object):
     def __init__(self):
         self._transit_orders = queue.Queue(30)
         self._robots_states = {}
+        self._tim1 = rospy.Timer(rospy.Duration(1), lambda event: self._proceed_next_order())
+        self._tim1 = rospy.Timer(rospy.Duration(3), lambda event: self._order_all_robots())
+        self._orders_sub = rospy.Subscriber(_ORDER_TOPIC, Order, self._transit_order_received)
+        self._robots_state_sub = rospy.Subscriber(_ROBOTS_STATE_TOPIC, RobotStatus, self._update_robot_status_received)
 
     def _proceed_next_order(self):
         if self._transit_orders.empty():
@@ -55,8 +66,14 @@ class OrdersController(object):
             self._transit_orders.put(warehouse_order)
 
     def _update_robot_status_received(self, msg):
-        self._robots_states[msg.id] = RobotInfo(msg.state, msg.location, msg.carried_parts, msg.capacity)
-        if msg.state == RobotState.READY:
+        if not msg.id in self._robots_states.keys():
+            self._robots_states[msg.id] = RobotInfo(msg.state.state, msg.location.location, msg.carried_parts, msg.capacity)
+        else:
+            self._robots_states[msg.id].state = msg.state.state
+            self._robots_states[msg.id].position = msg.location.location
+            self._robots_states[msg.id].load = msg.carried_parts
+            self._robots_states[msg.id].capacity = msg.capacity
+        if self._robots_states[msg.id].state == RobotState.READY:
             self._order_robot(msg.id)
     
     def _order_robot(self, id):
@@ -68,15 +85,22 @@ class OrdersController(object):
                 return
             else:
                 robot_info.tasks.put(RobotOrder(RobotOrderType.MOVE_TO, MoveTo(WarehouseLocation.RESTING_AREA)))
-        order = self._robots_states[id].tasks.get()
+        order = robot_info.tasks.get()
         if order.order_type == RobotOrderType.MOVE_TO:
-            pass
+            move_service = rospy.ServiceProxy(_MOVE_SERVICE, CommandRobot)
+            move_service(id, order.data.location_id)
         elif order.order_type == RobotOrderType.LOAD:
-            pass
+            load_service = rospy.ServiceProxy(_LOAD_SERVICE, CommandRobot)
+            load_service(id, order.data.amount)
         elif order.order_type == RobotOrderType.UNLOAD:
-            pass
+            unload_service = rospy.ServiceProxy(_UNLOAD_SERVICE, CommandRobot)
+            unload_service(id, order.data.amount)
         else:
             raise Exception
+
+    def _order_all_robots(self):
+        for id in self._robots_states.keys():
+            self._order_robot(id)
 
     def _transit_order_received(self, order):
         processed_orders_list = self._process_order_msg(order)
@@ -91,12 +115,11 @@ class OrdersController(object):
 
         capable_robots = []
         for info in self._robots_states.values():
-            if info.capacity <= to_load and info.tasks.qsize() < 12:
+            if info.capacity >= to_load and info.tasks.qsize() < 12:
                 capable_robots.append(info)
 
         if capable_robots == []:
             return False
-        
         robot = min(capable_robots, key = lambda robot: robot.tasks.qsize())
         for order in orders:
             robot.tasks.put(order)
@@ -115,4 +138,9 @@ class OrdersController(object):
         ret_list.append(RobotOrder(RobotOrderType.UNLOAD, Unload(order.part_id, order.amount)))
         return ret_list
 
+if __name__ == '__main__':
+    rospy.init_node('orders_controller')
+    rospy.loginfo("Starting orders controller...")
 
+    controller = OrdersController()
+    rospy.spin()

@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+
+    <node name="orders_controller" pkg="orders_controller" type="OrdersController.py" output="screen">
+    </node>
+</launch>
+

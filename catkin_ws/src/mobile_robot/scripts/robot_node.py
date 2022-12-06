@@ -10,13 +10,13 @@ class RobotsHandler(object):
     def __init__(self):
         robots_qty =  rospy.get_param('~robots_qty')
         capacity = rospy.get_param('~robot_capacity')
+        self._service_move_to = rospy.Service('robot/move_to', CommandRobot, self._response_move_to)
+        self._service_get_parts = rospy.Service('/robot/get_parts', CommandRobot, self._response_get_parts)
+        self._service_drop_parts = rospy.Service('/robot/drop_parts', CommandRobot, self._response_drop_parts)
         self._robots = {}
         for id in range(robots_qty):
             self._robots[id] = Robot(id, capacity)
         
-        self._service_move_to = rospy.Service('robot/move_to', CommandRobot, self._response_move_to)
-        self._service_get_parts = rospy.Service('/robot/get_parts', CommandRobot, self._response_get_parts)
-        self._service_drop_parts = rospy.Service('/robot/drop_parts', CommandRobot, self._response_drop_parts)
 
     def _response_move_to(self, req):
         robot = self._robots.get(req.robot_id)

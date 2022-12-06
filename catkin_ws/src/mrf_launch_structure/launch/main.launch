@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
-    <arg name="robots_qty" default="3"/>
-    <arg name="robot_capacity" default="5"/>
+    <arg name="robots_qty" default="5"/>
+    <arg name="robot_capacity" default="10"/>
 
     <!-- Register robots -->
     <include file="$(find mobile_robot)/launch/robot.launch">
@@ -11,6 +11,9 @@
 
     <!-- Register warehouse -->
     <include file="$(find warehouse)/launch/warehouse.launch">
+    </include>
+
+    <include file="$(find orders_controller)/launch/orders_controller.launch">
     </include>
 </launch>
 
