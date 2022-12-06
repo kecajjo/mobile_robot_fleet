@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="robots_qty" default="3"/>
+    <arg name="robot_capacity" default="5"/>
+
+    <!-- Register robots -->
+    <include file="$(find mobile_robot)/launch/robot.launch">
+        <arg name="robots_qty" value="$(arg robots_qty)" />
+        <arg name="robot_capacity" value="$(arg robot_capacity)" />
+    </include>
+</launch>
+

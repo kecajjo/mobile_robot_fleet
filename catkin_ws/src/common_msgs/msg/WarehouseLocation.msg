@@ -1,0 +1,9 @@
+int8 RESTING_AREA = 0
+int8 STATION_ID_1 = 10
+int8 STATION_ID_2 = 11
+int8 STATION_ID_3 = 12
+int8 STATION_ID_4 = 13
+int8 DUMP_ID_0 = 20
+int8 DUMP_ID_1 = 21
+
+int8 location

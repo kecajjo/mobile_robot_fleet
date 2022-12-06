@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="robots_qty" default="1"/>
+    <arg name="robot_capacity" default="5"/>
+
+    <node name="robot" pkg="mobile_robot" type="robot_node.py" output="screen">
+        <param name="robots_qty" value="$(arg robots_qty)" />
+        <param name="robot_capacity" value="$(arg robot_capacity)" />
+    </node>
+</launch>
+
