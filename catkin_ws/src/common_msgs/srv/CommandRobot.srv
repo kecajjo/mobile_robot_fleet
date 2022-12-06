@@ -1,4 +1,4 @@
-int8 robot_id
-int8 value
+uint8 robot_id
+uint8 value
 ---
 bool success

@@ -8,5 +8,9 @@
         <arg name="robots_qty" value="$(arg robots_qty)" />
         <arg name="robot_capacity" value="$(arg robot_capacity)" />
     </include>
+
+    <!-- Register warehouse -->
+    <include file="$(find warehouse)/launch/warehouse.launch">
+    </include>
 </launch>
 

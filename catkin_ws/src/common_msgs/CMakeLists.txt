@@ -14,7 +14,9 @@ add_message_files(DIRECTORY
                   FILES
                   RobotStatus.msg
                   RobotState.msg
-                  WarehouseLocation.msg)
+                  WarehouseLocation.msg
+                  Order.msg
+                  Part.msg)
 
 add_service_files(DIRECTORY
                   srv

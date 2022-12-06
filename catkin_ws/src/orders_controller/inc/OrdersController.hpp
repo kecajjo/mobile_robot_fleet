@@ -5,7 +5,6 @@
 #include <queue>
 #include <utility>
 
-enum RobotState { C = 0, D = 2 };
 enum PositionType { ROAD = 0, LINE = 1, WAREHOUSE = 2, PARKING };
 
 class OrdersController {
@@ -28,7 +27,7 @@ class OrdersController {
     };
 
   public:
-    void loadRobot(std::pair<unsigned int, float> part);
+    void loadRobot(std::pair<unsigned int, unsigned int> part);
     void registerRobot(unsigned int id, std::unique_ptr<RobotInfo> robotInfo);
     void updateRobotInfo(unsigned int id, std::unique_ptr<RobotInfo> robotInfo);
     void orderRobot();
