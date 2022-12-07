@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>warehouse</name>
+  <version>0.0.0</version>
+  <description>The warehouse package</description>
+
+  <maintainer email="root@todo.todo">root</maintainer>
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>common_msgs</buildtool_depend>
+  <depend>rospy</depend>
+  <depend>std_msgs</depend>
+  <depend>common_msgs</depend>
+</package>

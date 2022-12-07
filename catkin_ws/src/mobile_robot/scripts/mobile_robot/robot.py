@@ -17,6 +17,7 @@ class Robot(object):
         self._location = WarehouseLocation.RESTING_AREA
         
         self._pub_robot_status = rospy.Publisher('/robot/status', RobotStatus, queue_size=10)
+        rospy.sleep(2)
         self._publish_robot_status()
         
         rospy.loginfo("Robot_{} has started succesfuly!".format(self._id))
@@ -25,6 +26,7 @@ class Robot(object):
         self._location = location
         self._state = RobotState.MOVING
         self._publish_robot_status()
+        rospy.loginfo("Robot_{} is moving to node {}!".format(self._id, location))
 
         rospy.Timer(rospy.Duration(WAIT_TIME_MOVE), self._timed_task_finished, oneshot=True)
 
@@ -35,6 +37,7 @@ class Robot(object):
         for _ in range(parts_qty):
             self._carried_parts.put(self._location)  # put part of ID inherited from current location
 
+        rospy.loginfo("Robot_{} is loading!".format(self._id))
         rospy.Timer(rospy.Duration(WAIT_TIME_PER_PART * parts_qty), self._timed_task_finished, oneshot=True)
 
     def _drop_parts(self):
@@ -43,6 +46,7 @@ class Robot(object):
 
         rospy.Timer(rospy.Duration(WAIT_TIME_PER_PART * len(self._carried_parts.queue)),
                     self._timed_task_finished, oneshot=True)
+        rospy.loginfo("Robot_{} is unloading!".format(self._id))
         self._carried_parts.queue.clear()
 
     def _publish_robot_status(self):
@@ -51,6 +55,7 @@ class Robot(object):
         msg.location = WarehouseLocation(self._location)
         msg.carried_parts = list(self._carried_parts.queue)
         msg.id = self._id
+        msg.capacity = self._capacity
         self._pub_robot_status.publish(msg)
 
     def _timed_task_finished(self, event):
