@@ -9,10 +9,11 @@ _ORDER_TOPIC="/orders"
 class Warehouse(object):
     def __init__(self):
         self._pub_robot_status = rospy.Publisher(_ORDER_TOPIC, Order, queue_size=10)
-        rospy.Timer(rospy.Duration(2), self._my_callback)
+        rospy.Timer(rospy.Duration(2), self._my_callback, True)
 
     def _my_callback(self, event):
         self.order_parts()
+        rospy.Timer(rospy.Duration(random.randint(1,5)), self._my_callback,True)
 
     def order_parts(self):
         order = Order()

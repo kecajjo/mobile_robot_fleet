@@ -9,6 +9,36 @@ _LOAD_SERVICE = "/robot/get_parts"
 _UNLOAD_SERVICE = "/robot/drop_parts"
 _ROBOTS_STATE_TOPIC = "/robot/status"
 
+
+class FactoryMap(object):
+    def __init__(self, m=3, n=5, STATION_OFFSET = 101, DUMP_OFFSET=201):
+        self.rows = m  
+        self.columns = n  
+        self.graph = dict()
+        self.graph[0] = [x for x in range(1, n+1)]  # RESTING AREA
+        station = [x for x in range(STATION_OFFSET, STATION_OFFSET+m+1)]
+        dump = [x for x in range(DUMP_OFFSET, DUMP_OFFSET+m+1)]
+        for i in range(1, m+1):
+            self.graph[station[i-1]] = [1+(i-1)*n]
+            self.graph[dump[i-1]] = [i*n]
+            for j in range(1, n+1):
+                edges = []
+                if j != 1:
+                    edges.append(j-1+(i-1)*n)
+                else:
+                    edges.append(station[i-1])
+                if j != n:
+                    edges.append(j+1+(i-1)*n)
+                else:
+                    edges.append(dump[i-1])
+                if i != 1:
+                    edges.append(j+(i-2)*n)
+                else:
+                    edges.append(0)  # RESTING AREA
+                if i != m:
+                    edges.append(j+i*n)
+                self.graph[j+(i-1)*n] = edges
+
 class RobotOrderType(object):
     MOVE_TO = 0
     LOAD = 1
