@@ -1,5 +1,6 @@
 import rospy
 import queue
+from threading import Lock
 from common_msgs.msg import Part, Order, RobotStatus, WarehouseLocation, RobotState
 from common_msgs.srv import CommandRobot
 
@@ -52,6 +53,7 @@ class OrdersController(object):
     def __init__(self):
         self._transit_orders = queue.Queue(30)
         self._robots_states = {}
+        self._robots_states_lock = Lock()
         self._tim1 = rospy.Timer(rospy.Duration(1), lambda event: self._proceed_next_order())
         self._tim1 = rospy.Timer(rospy.Duration(3), lambda event: self._order_all_robots())
         self._orders_sub = rospy.Subscriber(_ORDER_TOPIC, Order, self._transit_order_received)
@@ -66,16 +68,18 @@ class OrdersController(object):
             self._transit_orders.put(warehouse_order)
 
     def _update_robot_status_received(self, msg):
-        if not msg.id in self._robots_states.keys():
-            self._robots_states[msg.id] = RobotInfo(msg.state.state, msg.location.location, msg.carried_parts, msg.capacity)
-        else:
-            self._robots_states[msg.id].state = msg.state.state
-            self._robots_states[msg.id].position = msg.location.location
-            self._robots_states[msg.id].load = msg.carried_parts
-            self._robots_states[msg.id].capacity = msg.capacity
-        if self._robots_states[msg.id].state == RobotState.READY:
+        with self._robots_states_lock:
+            if not msg.id in self._robots_states.keys():
+                self._robots_states[msg.id] = RobotInfo(msg.state.state, msg.location.location, msg.carried_parts, msg.capacity)
+            else:
+                self._robots_states[msg.id].state = msg.state.state
+                self._robots_states[msg.id].position = msg.location.location
+                self._robots_states[msg.id].load = msg.carried_parts
+                self._robots_states[msg.id].capacity = msg.capacity
+
+        if msg.state.state == RobotState.READY:
             self._order_robot(msg.id)
-    
+
     def _order_robot(self, id):
         robot_info = self._robots_states[id]
         if robot_info.state != RobotState.READY:
@@ -99,7 +103,9 @@ class OrdersController(object):
             raise Exception
 
     def _order_all_robots(self):
-        for id in self._robots_states.keys():
+        with self._robots_states_lock:
+            robots_states = self._robots_states.keys()
+        for id in robots_states:
             self._order_robot(id)
 
     def _transit_order_received(self, order):
@@ -114,9 +120,10 @@ class OrdersController(object):
                 to_load = to_load + order.data.amount
 
         capable_robots = []
-        for info in self._robots_states.values():
-            if info.capacity >= to_load and info.tasks.qsize() < 12:
-                capable_robots.append(info)
+        with self._robots_states_lock:
+            for info in self._robots_states.values():
+                if info.capacity >= to_load and info.tasks.qsize() < 12:
+                    capable_robots.append(info)
 
         if capable_robots == []:
             return False
