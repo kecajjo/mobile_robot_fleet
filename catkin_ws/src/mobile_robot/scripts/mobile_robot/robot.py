@@ -15,13 +15,13 @@ class Robot(object):
         self._carried_parts = queue.Queue(maxsize=self._capacity)
         self._state = RobotState.READY
         self._location = WarehouseLocation.RESTING_AREA
-        
+
         self._pub_robot_status = rospy.Publisher('/robot/status', RobotStatus, queue_size=10)
         rospy.sleep(2)
         self._publish_robot_status()
-        
+
         rospy.loginfo("Robot_{} has started succesfuly!".format(self._id))
-        
+
     def _move_to(self, location):
         self._location = location
         self._state = RobotState.MOVING
@@ -33,7 +33,7 @@ class Robot(object):
     def _get_parts(self, parts_qty):
         self._state = RobotState.WORKING
         self._publish_robot_status()
-        
+
         for _ in range(parts_qty):
             self._carried_parts.put(self._location)  # put part of ID inherited from current location
 

@@ -1,7 +1,12 @@
 <?xml version="1.0"?>
 <launch>
+    <arg name="factory_map_rows" default="3"/>
+    <arg name="factory_map_columns" default="5"/>
     <arg name="robots_qty" default="5"/>
     <arg name="robot_capacity" default="10"/>
+
+    <param name="factory_map_rows" value="$(arg factory_map_rows)" />
+    <param name="factory_map_columns" value="$(arg factory_map_columns)" />
 
     <!-- Register robots -->
     <include file="$(find mobile_robot)/launch/robot.launch">
