@@ -12,4 +12,5 @@
   <depend>rospy</depend>
   <depend>std_msgs</depend>
   <depend>common_msgs</depend>
+  <depend>warehouse</depend>
 </package>

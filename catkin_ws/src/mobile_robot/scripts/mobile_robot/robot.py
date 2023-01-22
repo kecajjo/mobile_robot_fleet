@@ -23,11 +23,22 @@ class Robot(object):
         rospy.loginfo("Robot_{} has started succesfuly!".format(self._id))
 
     def _move_to(self, location):
+        # TODO:
+        # current_location = self._location
         self._location = location
         self._state = RobotState.MOVING
         self._publish_robot_status()
         rospy.loginfo("Robot_{} is moving to node {}!".format(self._id, location))
 
+        # TODO:
+        # Remove timer below and call service that should inform movement_controller
+        # that this robot wants to move from "current_location" to "location", example:
+        #
+        # self._movement_order.call(current_location, location)
+        #
+        # Once robot reaches its destination "location" - movement_controller should
+        # inform robot that robot reached location, so self._task_finished should be executed
+        # (for example) by using service where robot is a server and movement_controller a client
         rospy.Timer(rospy.Duration(WAIT_TIME_MOVE), self._timed_task_finished, oneshot=True)
 
     def _get_parts(self, parts_qty):
@@ -58,6 +69,9 @@ class Robot(object):
         msg.capacity = self._capacity
         self._pub_robot_status.publish(msg)
 
-    def _timed_task_finished(self, event):
+    def _task_finished(self):
         self._state = RobotState.READY
         self._publish_robot_status()
+
+    def _timed_task_finished(self, event):
+        self._task_finished()
