@@ -3,9 +3,11 @@
 import rospy
 import queue
 from common_msgs.msg import RobotState, RobotStatus, WarehouseLocation
+from common_msgs.srv import MovementOrder
 
 WAIT_TIME_PER_PART = 2.0
 WAIT_TIME_MOVE = 5.0
+_MOVE_ORDER_SERVICE = "/robot/movement_order"
 
 class Robot(object):
     def __init__(self, id, capacity):
@@ -25,11 +27,26 @@ class Robot(object):
     def _move_to(self, location):
         # TODO:
         # current_location = self._location
-        self._location = location
+        # self._location = location
         self._state = RobotState.MOVING
         self._publish_robot_status()
         rospy.loginfo("Robot_{} is moving to node {}!".format(self._id, location))
-
+        _movement_order = rospy.ServiceProxy(_MOVE_ORDER_SERVICE,MovementOrder)
+        rate = rospy.Rate(1)
+        while not rospy.is_shutdown():
+            # next_move, status = _movement_order(WarehouseLocation(self._location),WarehouseLocation(location))
+            rospy.wait_for_service(_MOVE_ORDER_SERVICE)
+            try:
+                resp = _movement_order(self._id, WarehouseLocation(self._location),WarehouseLocation(location))
+                if resp.task_finished:
+                    break
+                else:
+                    self._location = resp.next_move.location
+                    rospy.loginfo("id:{} loc: {}".format(self._id,self._location))
+            except rospy.ServiceException as e:
+                print("Service call failed: %s"%e)
+            rate.sleep()
+        self._task_finished()
         # TODO:
         # Remove timer below and call service that should inform movement_controller
         # that this robot wants to move from "current_location" to "location", example:
@@ -39,7 +56,7 @@ class Robot(object):
         # Once robot reaches its destination "location" - movement_controller should
         # inform robot that robot reached location, so self._task_finished should be executed
         # (for example) by using service where robot is a server and movement_controller a client
-        rospy.Timer(rospy.Duration(WAIT_TIME_MOVE), self._timed_task_finished, oneshot=True)
+        #rospy.Timer(rospy.Duration(WAIT_TIME_MOVE), self._timed_task_finished, oneshot=True)
 
     def _get_parts(self, parts_qty):
         self._state = RobotState.WORKING
@@ -70,8 +87,10 @@ class Robot(object):
         self._pub_robot_status.publish(msg)
 
     def _task_finished(self):
-        self._state = RobotState.READY
+        self._state = RobotState.WAITING
         self._publish_robot_status()
 
     def _timed_task_finished(self, event):
-        self._task_finished()
+        # self._task_finished()
+        self._state = RobotState.READY
+        self._publish_robot_status()

@@ -9,12 +9,15 @@ USER root
         cmake \
         flake8 \
         git \
+        python3-tk \
+        python3-pip \
         python3-catkin-tools \
         python3-osrf-pycommon && \
         rm -rf /var/lib/apt/lists/*
     RUN apt-get update && apt-get install -y \
         plantuml && \
         rm -rf /var/lib/apt/lists/*
+    RUN pip3 install matplotlib
 
 USER developer
     RUN mkdir -p /home/developer/mobile_robot_fleet

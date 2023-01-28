@@ -2,7 +2,7 @@
 <launch>
     <arg name="factory_map_rows" default="3"/>
     <arg name="factory_map_columns" default="5"/>
-    <arg name="robots_qty" default="5"/>
+    <arg name="robots_qty" default="4"/>
     <arg name="robot_capacity" default="10"/>
 
     <param name="factory_map_rows" value="$(arg factory_map_rows)" />

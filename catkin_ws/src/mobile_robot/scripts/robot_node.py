@@ -27,14 +27,14 @@ class RobotsHandler(object):
 
     def _response_get_parts(self, req):
         robot = self._robots.get(req.robot_id)
-        if (req.value > robot._capacity - len(robot._carried_parts.queue)) or robot._state is not RobotState.READY:
+        if (req.value > robot._capacity - len(robot._carried_parts.queue)) or robot._state is not RobotState.WAITING:
             return CommandRobotResponse(False)
         robot._get_parts(req.value)
         return CommandRobotResponse(True)
 
     def _response_drop_parts(self, req):
         robot = self._robots.get(req.robot_id)
-        if robot._carried_parts.empty() or robot._state is not RobotState.READY:
+        if robot._carried_parts.empty() or robot._state is not RobotState.WAITING:
             return CommandRobotResponse(False)
         robot._drop_parts()
         return CommandRobotResponse(True)

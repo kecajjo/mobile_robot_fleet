@@ -1,0 +1,6 @@
+uint8 id
+common_msgs/WarehouseLocation current_location
+common_msgs/WarehouseLocation destination
+---
+common_msgs/WarehouseLocation next_move
+bool task_finished

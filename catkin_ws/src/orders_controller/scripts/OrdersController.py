@@ -82,21 +82,30 @@ class OrdersController(object):
 
     def _order_robot(self, id):
         robot_info = self._robots_states[id]
-        if robot_info.state != RobotState.READY:
+        if robot_info.state != RobotState.READY and robot_info.state != RobotState.WAITING:
             return
         if robot_info.tasks.empty():
             if robot_info.position == WarehouseLocation.RESTING_AREA:
                 return
             else:
                 robot_info.tasks.put(RobotOrder(RobotOrderType.MOVE_TO, MoveTo(WarehouseLocation.RESTING_AREA)))
-        order = robot_info.tasks.get()
+        order = robot_info.tasks.queue[0]
         if order.order_type == RobotOrderType.MOVE_TO:
+            if robot_info.state != RobotState.READY:
+                return
+            order = robot_info.tasks.get()
             move_service = rospy.ServiceProxy(_MOVE_SERVICE, CommandRobot)
             move_service(id, order.data.location_id)
         elif order.order_type == RobotOrderType.LOAD:
+            if robot_info.state != RobotState.WAITING:
+                return
+            order = robot_info.tasks.get()
             load_service = rospy.ServiceProxy(_LOAD_SERVICE, CommandRobot)
             load_service(id, order.data.amount)
         elif order.order_type == RobotOrderType.UNLOAD:
+            if robot_info.state != RobotState.WAITING:
+                return
+            order = robot_info.tasks.get()
             unload_service = rospy.ServiceProxy(_UNLOAD_SERVICE, CommandRobot)
             unload_service(id, order.data.amount)
         else:
@@ -105,8 +114,8 @@ class OrdersController(object):
     def _order_all_robots(self):
         with self._robots_states_lock:
             robots_states = self._robots_states.keys()
-        for id in robots_states:
-            self._order_robot(id)
+            for id in robots_states:
+                self._order_robot(id)
 
     def _transit_order_received(self, order):
         processed_orders_list = self._process_order_msg(order)
